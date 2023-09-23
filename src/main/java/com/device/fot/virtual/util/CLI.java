@@ -34,6 +34,14 @@ public class CLI {
         return getArgInList("-to", args);
     }
     
+    public static Optional<String> getAgentIp(String... args){
+        return getArgInList("-ai", args);
+    }
+
+    public static Optional<String> getAgentPort(String... args){
+        return getArgInList("-ap", args);
+    }
+    
     public static boolean hasParam(String arg, String... args){
         return Arrays.asList(args).indexOf(arg) != -1;
     }

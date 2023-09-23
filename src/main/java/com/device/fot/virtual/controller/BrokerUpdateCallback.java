@@ -33,7 +33,7 @@ public class BrokerUpdateCallback implements MqttCallback, Runnable {
         this.ip = this.getIpAddress();
     }
 
-    public void startUpdateBroker(BrokerSettings brokerSettings, double timeout, boolean retryConnect) {
+    public void startUpdateBroker(BrokerSettings brokerSettings, double timeout, boolean retryConnect, JSONObject jsonInvitation) {
         if (this.device.isUpdating()) {
             System.out.println("Device já está atualizando.");
             return;
@@ -42,7 +42,7 @@ public class BrokerUpdateCallback implements MqttCallback, Runnable {
         this.device.setIsUpdating(true);
         MqttConnectOptions newOptions = brokerSettings.getConnectionOptions();
         String connectionTopic = ExtendedTATUWrapper.getConnectionTopic();
-        String message = ExtendedTATUWrapper.buildConnectMessage(device, ip, timeout);
+        String message = ExtendedTATUWrapper.buildConnectMessage(device, ip, timeout, jsonInvitation);
         this.timeoutCounter = new Thread(this);
         this.timeoutCounter.setName("BROKER/UPDATE/TIMEOUT");
 

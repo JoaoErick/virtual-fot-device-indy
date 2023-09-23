@@ -11,8 +11,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.hyperledger.aries.api.connection.CreateInvitationResponse;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
+import com.device.fot.virtual.controller.AriesController;
 import com.device.fot.virtual.controller.BrokerUpdateCallback;
 import com.device.fot.virtual.controller.DataController;
 import com.device.fot.virtual.model.BrokerSettings;
@@ -29,6 +32,8 @@ import extended.tatu.wrapper.util.SensorWrapper;
  * @author Uellington Damasceno
  */
 public class Main {
+
+        public static AriesController ariesController;
 
         public static void main(String[] args) {
                 try (InputStream input = Main.class.getResourceAsStream("broker.properties")) {
@@ -56,6 +61,12 @@ public class Main {
                         String timeout = CLI.getTimeout(args)
                                         .orElse("10000");
 
+                        String agentIp = CLI.getAgentIp(args)
+                                        .orElse("10000");
+
+                        String agentPort = CLI.getAgentPort(args)
+                                        .orElse("10000");
+
                         BrokerSettings brokerSettings = BrokerSettingsBuilder
                                         .builder()
                                         .setBrokerIp(brokerIp)
@@ -76,9 +87,16 @@ public class Main {
                                         .map(Sensor.class::cast)
                                         .collect(toList());
 
-                        FoTDevice device = new FoTDevice(deviceId, sensors);
+                        
+
+                        ariesController = new AriesController(agentIp, agentPort);
+
+                        JSONObject jsonInvitation = createInvitation(ariesController, deviceId);
+
+                        FoTDevice device = new FoTDevice(deviceId, sensors, jsonInvitation);
+
                         BrokerUpdateCallback callback = new BrokerUpdateCallback(device);
-                        callback.startUpdateBroker(brokerSettings, Long.parseLong(timeout), true);
+                        callback.startUpdateBroker(brokerSettings, Long.parseLong(timeout), true, jsonInvitation);
 
                 } catch (IOException ex) {
                         System.err.println("Sorry, unable to find sensors.json or not create pesistence file.");
@@ -97,5 +115,30 @@ public class Main {
                                         .map(sensor -> new FoTSensor(deviceName, sensor))
                                         .collect(toList());
                 }
+        }
+
+        /**
+         * Creating connection invitation.
+         * 
+         * @param ariesController - Aries controller with agent interaction methods.
+         * @param label - Connection invite label.
+         * @return JSONObject
+         * @throws IOException
+         */
+        public static JSONObject createInvitation(AriesController ariesController, String label)
+        throws IOException {
+                System.out.println("Creating connection invitation...");
+
+                CreateInvitationResponse createInvitationResponse = ariesController.createInvitation(label);
+
+                String json = ariesController.getJsonInvitation(createInvitationResponse);
+
+                System.out.println("Json Invitation: " + json);
+
+                System.out.println("Invitation created!\n");
+
+                JSONObject jsonInvitation = new JSONObject(json);
+
+                return jsonInvitation;
         }
 }

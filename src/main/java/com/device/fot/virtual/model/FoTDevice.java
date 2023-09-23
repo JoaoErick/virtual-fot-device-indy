@@ -12,6 +12,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONObject;
 
 /**
  *
@@ -23,10 +24,12 @@ public class FoTDevice extends Device {
     private MqttClient client;
     private boolean updating;
     private MqttCallback callback;
+    private JSONObject jsonInvitation;
 
-    public FoTDevice(String name, List<Sensor> sensors) {
+    public FoTDevice(String name, List<Sensor> sensors, JSONObject jsonInvitation) {
         super(name, new Random().nextDouble(), new Random().nextDouble(), sensors);
         this.updating = false;
+        this.jsonInvitation = jsonInvitation;
     }
 
     public void startFlow() {
@@ -101,6 +104,10 @@ public class FoTDevice extends Device {
                 .filter(FoTSensor.class::isInstance)
                 .map(FoTSensor.class::cast)
                 .collect(Collectors.toList());
+    }
+
+    public JSONObject getJsonInvitation() {
+        return jsonInvitation;
     }
 
 }

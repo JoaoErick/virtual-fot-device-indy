@@ -74,7 +74,7 @@ public class DefaultFlowCallback implements MqttCallback {
                             .setPassword(newBrokerSettingsJson.getString("password"))
                             .build();
 
-                    this.brokerUpdateController.startUpdateBroker(newBrokerSettings, 10.000, false);
+                    this.brokerUpdateController.startUpdateBroker(newBrokerSettings, 10.000, false, device.getJsonInvitation());
                 } else {
                     System.out.println("The device is updating: " + this.device.isUpdating());
                 }
