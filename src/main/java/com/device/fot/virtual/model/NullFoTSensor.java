@@ -8,7 +8,7 @@ public class NullFoTSensor extends FoTSensor {
     public static NullFoTSensor nullSensor;
 
     private NullFoTSensor() {
-        super("NullDevice", "NullSensor", "NullType", 0, 0, 0, 0);
+        super("NullDevice", "NullSensor", "NullType", 0, 0, 0, 0, 0);
     }
 
     public static synchronized NullFoTSensor getInstance() {

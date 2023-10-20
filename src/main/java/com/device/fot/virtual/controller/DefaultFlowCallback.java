@@ -1,8 +1,5 @@
 package com.device.fot.virtual.controller;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -16,6 +13,9 @@ import com.device.fot.virtual.model.NullFoTSensor;
 
 import extended.tatu.wrapper.model.TATUMessage;
 import extended.tatu.wrapper.util.TATUWrapper;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.eclipse.paho.client.mqttv3.MqttException;
 
 /**
  *
@@ -95,11 +95,31 @@ public class DefaultFlowCallback implements MqttCallback {
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken imdt) {
-
+        MqttMessage deliveredMessage;
+        try {
+            deliveredMessage = imdt.getMessage();
+            String messageContent = new String(deliveredMessage.getPayload());
+            long customTimestamp = TATUWrapper.getMessageTimestamp(messageContent);
+            if(customTimestamp == 0){
+                System.out.println("The message"+ messageContent +" don't have timestamp");
+            }
+            
+            long latency = System.currentTimeMillis() - customTimestamp;
+            LatencyLogController.getInstance().putLatency(latency);
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("excep "+me);
+            Logger.getLogger(DefaultFlowCallback.class.getName()).log(Level.SEVERE, null, me);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(DefaultFlowCallback.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public void connectionLost(Throwable cause) {
-        Logger.getLogger(DefaultFlowCallback.class.getName()).log(Level.SEVERE, null, cause);
+        Logger.getLogger(DefaultFlowCallback.class
+                .getName()).log(Level.SEVERE, null, cause);
     }
 }

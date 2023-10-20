@@ -17,7 +17,8 @@ import org.json.JSONObject;
 
 import com.device.fot.virtual.controller.AriesController;
 import com.device.fot.virtual.controller.BrokerUpdateCallback;
-import com.device.fot.virtual.controller.DataController;
+import com.device.fot.virtual.controller.LatencyLogController;
+import com.device.fot.virtual.controller.MessageLogController;
 import com.device.fot.virtual.model.BrokerSettings;
 import com.device.fot.virtual.model.BrokerSettingsBuilder;
 import com.device.fot.virtual.model.FoTDevice;
@@ -47,19 +48,19 @@ public class Main {
                                         .orElse(UUID.randomUUID().toString());
 
                         String brokerIp = CLI.getBrokerIp(args)
-                                        .orElse(props.getProperty("brokerIp"));
+                                .orElse(props.getProperty("brokerIp"));
 
                         String port = CLI.getPort(args)
-                                        .orElse(props.getProperty("port"));
+                                .orElse(props.getProperty("port"));
 
                         String password = CLI.getPassword(args)
-                                        .orElse(props.getProperty("password"));
+                                .orElse(props.getProperty("password"));
 
                         String user = CLI.getUsername(args)
-                                        .orElse(props.getProperty("username"));
+                                .orElse(props.getProperty("username"));
 
                         String timeout = CLI.getTimeout(args)
-                                        .orElse("10000");
+                                .orElse("10000");
 
                         String agentIp = CLI.getAgentIp(args)
                                         .orElse("10000");
@@ -77,17 +78,21 @@ public class Main {
                                         .build();
 
                         if (CLI.hasParam("-ps", args)) {
-                                DataController.getInstance().createAndSetDataFile(deviceId + ".csv");
-                                DataController.getInstance().start();
-                                DataController.getInstance().setCanSaveData(true);
+                                MessageLogController.getInstance().createAndUpdateFileName(deviceId + "_messages_log.csv");
+                                MessageLogController.getInstance().start();
+                                MessageLogController.getInstance().setCanSaveData(true);
+                        }
+                        
+                        if(CLI.hasParam("-ll", args)){
+                                LatencyLogController.getInstance().createAndUpdateFileName(deviceId + "_latency_log.csv");
+                                LatencyLogController.getInstance().start();
+                                LatencyLogController.getInstance().setCanSaveData(true);
                         }
 
                         List<Sensor> sensors = readSensors("sensors.json", deviceId)
-                                        .stream()
-                                        .map(Sensor.class::cast)
-                                        .collect(toList());
-
-                        
+                                .stream()
+                                .map(Sensor.class::cast)
+                                .collect(toList());
 
                         ariesController = new AriesController(agentIp, agentPort);
 
@@ -104,19 +109,18 @@ public class Main {
         }
 
         private static List<FoTSensor> readSensors(String fileName, String deviceName) throws IOException {
-                try (var inputStream = Main.class.getResourceAsStream(fileName);
-                                var inputReader = new InputStreamReader(inputStream);
-                                var bufferedReader = new BufferedReader(inputReader)) {
+                try (var inputStream = Main.class.getResourceAsStream(fileName); var inputReader = new InputStreamReader(inputStream); var bufferedReader = new BufferedReader(inputReader)) {
 
-                        String textFile = bufferedReader.lines().collect(joining());
-                        JSONArray sensorsArray = new JSONArray(textFile);
-                        return SensorWrapper.getAllSensors(sensorsArray)
-                                        .stream()
-                                        .map(sensor -> new FoTSensor(deviceName, sensor))
-                                        .collect(toList());
+                String textFile = bufferedReader.lines().collect(joining());
+                JSONArray sensorsArray = new JSONArray(textFile);
+                return SensorWrapper.getAllSensors(sensorsArray)
+                        .stream()
+                        .map(sensor -> new FoTSensor(deviceName, sensor))
+                        .collect(toList());
                 }
+        
         }
-
+        
         /**
          * Creating connection invitation.
          * 

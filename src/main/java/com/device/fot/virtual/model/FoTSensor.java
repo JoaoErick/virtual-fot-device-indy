@@ -1,13 +1,12 @@
 package com.device.fot.virtual.model;
 
+import com.device.fot.virtual.controller.MessageLogController;
 import java.util.LinkedList;
 import java.util.Random;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
-import com.device.fot.virtual.controller.DataController;
 
 import extended.tatu.wrapper.model.Sensor;
 import extended.tatu.wrapper.util.TATUWrapper;
@@ -24,8 +23,10 @@ public class FoTSensor extends Sensor implements Runnable {
     private Thread thread;
     private MqttClient publisher;
 
-    private int minValue, maxValue;
     private String flowThreadName;
+    private Random random;
+    
+    private int lastValue;
 
     public FoTSensor(String deviceId, Sensor sensor) {
         this(deviceId,
@@ -33,26 +34,23 @@ public class FoTSensor extends Sensor implements Runnable {
                 sensor.getType(),
                 sensor.getCollectionTime(),
                 sensor.getPublishingTime(),
-                11,
-                30);
+                sensor.getMinValue(),
+                sensor.getMaxValue(),
+                sensor.getDelta());
     }
 
     public FoTSensor(String deviceId,
             String sensorName,
             String type,
             int publishingTime,
-            int collectionTime, int minValue, int maxValue) {
-
-        super(sensorName, type, collectionTime, publishingTime);
+            int collectionTime, int minValue, int maxValue, int delta) {
+        super(sensorName, type, collectionTime, publishingTime, minValue, maxValue, delta);
 
         this.deviceId = deviceId;
         this.flow = false;
         this.running = false;
-        if (minValue > maxValue) {
-            throw new IllegalArgumentException("O valor mínimo não pode ser maior que o valor máximo.");
-        }
-        this.minValue = minValue;
-        this.maxValue = maxValue;
+        this.random = new Random();
+        this.lastValue = minValue + random.nextInt() * (maxValue - minValue);
         this.flowThreadName = this.buildFlowThreadName(deviceId, id);
     }
 
@@ -129,20 +127,21 @@ public class FoTSensor extends Sensor implements Runnable {
         return this.running;
     }
 
-    public Integer getCurrentValue() {
-        return new Random().nextInt(minValue) + maxValue;
-    }
-
     private Data<Integer> getDataFlow() throws InterruptedException {
-        var drawer = new Random();
         var values = new LinkedList<Integer>();
         int tempPublish = this.publishingTime;
         while (tempPublish >= 0) {
-            values.add(drawer.nextInt(minValue) + maxValue);
+            values.add(this.getCurrentValue());
             tempPublish -= this.collectionTime;
             Thread.sleep(this.collectionTime);
         }
-        return new Data<Integer>(this.deviceId, this.id, values);
+        return new Data<>(this.deviceId, this.id, values);
+    }
+
+    public Integer getCurrentValue() {
+        //Integer variation = random.nextInt()* delta * (random.nextBoolean() ? 1 : -1);
+        //this.lastValue = Math.min(maxValue, Math.max(minValue, lastValue + variation));
+        return lastValue;
     }
 
     @Override
@@ -157,7 +156,7 @@ public class FoTSensor extends Sensor implements Runnable {
                 msg = TATUWrapper.buildFlowMessageResponse(deviceId, id, publishingTime, collectionTime,
                         data.getValues().toArray());
                 this.publisher.publish(topic, new MqttMessage(msg.getBytes()));
-                DataController.put(data);
+                MessageLogController.getInstance().putData(data);
             } catch (InterruptedException | MqttException ex) {
                 this.running = false;
             }
@@ -170,4 +169,17 @@ public class FoTSensor extends Sensor implements Runnable {
                 .append(deviceId).append("/")
                 .append(id).toString();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("FoTSensor{");
+        sb.append("deviceId:").append(deviceId);
+        sb.append(", minValue:").append(minValue);
+        sb.append(", maxValue:").append(maxValue);
+        sb.append(", running:").append(running);
+        sb.append('}');
+        return sb.toString();
+    }
+    
 }
