@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.github.JoaoErick</groupId>
             <artifactId>extended-tatu-wrapper</artifactId>
-            <version>main-SNAPSHOT</version>
+            <version>main-6353b72f37-1</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

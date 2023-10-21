@@ -5,8 +5,6 @@ WORKDIR /opt
 
 ADD target/virtual-fot-device-1.0-SNAPSHOT-jar-with-dependencies.jar ./device.jar
 
-RUN mvn -Pnative -DskipTests package && ls
-
 RUN apt-get update -y && apt-get upgrade -y && apt-get autoremove -y\ 
 	&& apt-get install net-tools -y\
 	&& apt-get install iproute2 -y\
