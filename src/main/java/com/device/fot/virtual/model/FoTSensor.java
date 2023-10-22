@@ -170,6 +170,10 @@ public class FoTSensor extends Sensor implements Runnable {
                 .append(id).toString();
     }
 
+    public int getLastValue() {
+        return lastValue;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
