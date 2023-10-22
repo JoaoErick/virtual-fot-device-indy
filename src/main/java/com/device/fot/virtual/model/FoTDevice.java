@@ -61,7 +61,7 @@ public class FoTDevice extends Device {
         this.updating = updating;
     }
 
-    public void connect(BrokerSettings brokerSettings) throws MqttException {
+    public void connect(BrokerSettings brokerSettings) throws MqttException, InterruptedException {
 
         this.client = brokerSettings.getClient();
 
@@ -82,7 +82,7 @@ public class FoTDevice extends Device {
         this.brokerSettings = brokerSettings;
     }
 
-    public void updateBrokerSettings(BrokerSettings newBrokerSettings) throws MqttException {
+    public void updateBrokerSettings(BrokerSettings newBrokerSettings) throws MqttException, InterruptedException {
         BrokerSettings oldBrokerSettings = this.brokerSettings;
         this.pauseFlow();
         try {
@@ -98,7 +98,7 @@ public class FoTDevice extends Device {
         this.client.publish(topic, message);
     }
 
-    private List<FoTSensor> getFoTSensors() {
+    public List<FoTSensor> getFoTSensors() {
         return this.getSensors()
                 .stream()
                 .filter(FoTSensor.class::isInstance)
