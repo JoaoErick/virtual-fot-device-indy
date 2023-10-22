@@ -19,6 +19,7 @@ import com.device.fot.virtual.controller.AriesController;
 import com.device.fot.virtual.controller.BrokerUpdateCallback;
 import com.device.fot.virtual.controller.LatencyLogController;
 import com.device.fot.virtual.controller.MessageLogController;
+import com.device.fot.virtual.controller.ScoreLogController;
 import com.device.fot.virtual.model.BrokerSettings;
 import com.device.fot.virtual.model.BrokerSettingsBuilder;
 import com.device.fot.virtual.model.FoTDevice;
@@ -87,6 +88,12 @@ public class Main {
                                 LatencyLogController.getInstance().createAndUpdateFileName(deviceId + "_latency_log.csv");
                                 LatencyLogController.getInstance().start();
                                 LatencyLogController.getInstance().setCanSaveData(true);
+                        }
+
+                        if(CLI.hasParam("-sl", args)){
+                                ScoreLogController.getInstance().createAndUpdateFileName(deviceId + "_score_log.csv");
+                                ScoreLogController.getInstance().start();
+                                ScoreLogController.getInstance().setCanSaveData(true);
                         }
 
                         List<Sensor> sensors = readSensors("sensors.json", deviceId)
