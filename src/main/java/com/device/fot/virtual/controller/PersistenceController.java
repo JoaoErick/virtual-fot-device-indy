@@ -64,6 +64,21 @@ public abstract class PersistenceController<T> implements Runnable {
         }
     }
 
+    protected void write_append(List<String> lines) {
+        try (var w = Files.newBufferedWriter(Path.of(this.fileName), StandardOpenOption.APPEND)) {
+            lines.forEach(line -> {
+                try {
+                    w.append(line);
+                    w.newLine();
+                } catch (IOException ex) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+        } catch (IOException ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public void stop() {
         running = false;
     }
