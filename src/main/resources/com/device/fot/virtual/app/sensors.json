@@ -1,38 +1,38 @@
 [
     {
-        "id": "temperatureSensor",
-        "type": "Thermometer",
+        "id": "respirationRateSensor",
+        "type": "RespirationRateSensor",
         "collection_time": 0,
         "publishing_time": 0,
-        "min_value": 10,
-        "max_value": 20,
-        "delta": 1
-    },
-    {
-        "id": "humiditySensor",
-        "type": "HumiditySensor",
-        "collection_time": 0,
-        "publishing_time": 0,
-        "min_value": 20,
-        "max_value": 30,
+        "min_value": 6,
+        "max_value": 36,
         "delta": 2
     },
     {
-        "id": "pulseOxymeter",
-        "type": "PulseOxymeter",
+        "id": "pulseOxymeterSensor",
+        "type": "PulseOxymeterSensor",
         "collection_time": 0,
         "publishing_time": 0,
-        "min_value": 40,
-        "max_value": 50,
-        "delta": 3
+        "min_value": 86,
+        "max_value": 100,
+        "delta": 1
     },
     {
-        "id": "windDirectionSensor",
-        "type": "WindDirectionSensor",
+        "id": "bodyThermometerSensor",
+        "type": "BodyThermometerSensor",
         "collection_time": 0,
         "publishing_time": 0,
-        "min_value": 60,
-        "max_value": 70,
+        "min_value": 32,
+        "max_value": 44,
+        "delta": 2
+    },
+    {
+        "id": "heartRateSensor",
+        "type": "HeartRateSensor",
+        "collection_time": 0,
+        "publishing_time": 0,
+        "min_value": 25,
+        "max_value": 140,
         "delta": 4
     }
 ]
