@@ -26,7 +26,7 @@ public class DefaultFlowCallback implements MqttCallback {
     private FoTDevice device;
     private BrokerUpdateCallback brokerUpdateController;
 
-    public DefaultFlowCallback(FoTDevice device) throws InterruptedException {
+    public DefaultFlowCallback(FoTDevice device) {
         this.device = device;
         this.brokerUpdateController = new BrokerUpdateCallback(device);
 

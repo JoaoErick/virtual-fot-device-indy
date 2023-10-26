@@ -6,7 +6,7 @@ import com.device.fot.virtual.model.FoTSensor;
 
 public class CalculateScore {
 
-    public static int calculateDeviceScore(List<FoTSensor> sensors) {
+    public static synchronized int calculateDeviceScore(List<FoTSensor> sensors) {
         int sumValues = 0;
 
         for (FoTSensor sensor : sensors) {
@@ -16,7 +16,7 @@ public class CalculateScore {
         return (sumValues / sensors.size());
     }
 
-    private static int calculateSensorScore(String sensorType, int value) {
+    private static synchronized int calculateSensorScore(String sensorType, int value) {
         int score;
 
         switch (sensorType) {

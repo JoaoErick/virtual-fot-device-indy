@@ -1,6 +1,8 @@
 package com.device.fot.virtual.model;
 
 import com.device.fot.virtual.controller.MessageLogController;
+import com.device.fot.virtual.controller.ScoreLogController;
+
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -141,6 +143,9 @@ public class FoTSensor extends Sensor implements Runnable {
     public Integer getCurrentValue() {
         Integer variation = delta * (random.nextBoolean() ? 1 : -1);
         this.lastValue = Math.min(maxValue, Math.max(minValue, lastValue + variation));
+        
+        ScoreLogController.getInstance().putScore();
+
         return lastValue;
     }
 

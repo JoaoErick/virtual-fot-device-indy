@@ -61,7 +61,7 @@ public class FoTDevice extends Device {
         this.updating = updating;
     }
 
-    public void connect(BrokerSettings brokerSettings) throws MqttException, InterruptedException {
+    public void connect(BrokerSettings brokerSettings) throws MqttException {
 
         this.client = brokerSettings.getClient();
 

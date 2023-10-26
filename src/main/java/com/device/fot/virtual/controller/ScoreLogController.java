@@ -3,13 +3,12 @@ package com.device.fot.virtual.controller;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import com.device.fot.virtual.model.FoTDevice;
 import com.device.fot.virtual.util.CalculateScore;
 
 public class ScoreLogController extends PersistenceController<Integer> {
-
-    private final int COLLECTION_TIME = 2000; // Tempo entre os cálculos de escore
 
     private static ScoreLogController scoreLogController = new ScoreLogController();
 
@@ -25,24 +24,38 @@ public class ScoreLogController extends PersistenceController<Integer> {
         return scoreLogController;
     }
 
-    public void init(FoTDevice device) throws InterruptedException {
+    public void init(FoTDevice device) {
         if (canSaveData) {
             this.bufferSize = 16;
             this.device = device;
         }
     }
 
-    public void putScore() throws InterruptedException {
+    public void putScore() {
         if (canSaveData) {
             int score = CalculateScore.calculateDeviceScore(this.device.getFoTSensors());
-            buffer.put(score);
+            
+            try {
+                buffer.put(score);
+            } catch (InterruptedException ex) {
+                System.out.println("Oops! Error when adding the score to the write buffer...");
+            }
         }
     }
 
     private String buildLogScoreLine(int score) {
         LocalDateTime currentTime = LocalDateTime.now();
         String formattedTime = currentTime.format(formatter);
-        return String.format("%s, score: %d", formattedTime, score);
+        String id = UUID.randomUUID().toString()
+                        .replaceAll("-", "")
+                        .substring(0, 6);
+
+        return String.format(
+            "%s | ID: %s | Score: %d", 
+            formattedTime, 
+            id, 
+            score
+        );
     }
 
     @Override
@@ -51,16 +64,12 @@ public class ScoreLogController extends PersistenceController<Integer> {
         var latencyLines = new ArrayList<String>(bufferSize);
         while (running) {
             try {
-                if (this.device != null) {
-                    putScore();
-                }
                 if (!buffer.isEmpty()) {
                     latencyLines.add(this.buildLogScoreLine(buffer.take()));
                     if (latencyLines.size() >= bufferSize) {
                         this.write_append(latencyLines);
                         latencyLines.clear();
                     }
-                    Thread.sleep(COLLECTION_TIME);
                 }
             } catch (InterruptedException ex) {
                 this.write_append(latencyLines);
