@@ -10,6 +10,7 @@ import com.device.fot.virtual.model.BrokerSettingsBuilder;
 import com.device.fot.virtual.model.FoTDevice;
 import com.device.fot.virtual.model.FoTSensor;
 import com.device.fot.virtual.model.NullFoTSensor;
+import com.device.fot.virtual.util.CalculateScore;
 
 import extended.tatu.wrapper.model.TATUMessage;
 import extended.tatu.wrapper.util.TATUWrapper;
@@ -52,15 +53,33 @@ public class DefaultFlowCallback implements MqttCallback {
                 sensor.startFlow(flow.getInt("collect"), flow.getInt("publish"));
                 break;
             case GET:
-                sensor = (FoTSensor) device.getSensorBySensorId(tatuMessage.getTarget())
-                        .orElse(NullFoTSensor.getInstance());
-                String jsonResponse = TATUWrapper.buildGetMessageResponse(device.getId(),
-                        sensor.getId(),
-                        sensor.getCurrentValue());
+                if (
+                    tatuMessage.getCommand().equals("SCORE") &&
+                    tatuMessage.getTarget().equals("device")
+                ) {
+                    String jsonResponse = TATUWrapper.buildGetMessageResponse(
+                        device.getId(),
+                        "score",
+                        CalculateScore.calculateDeviceScore(
+                            this.device.getFoTSensors()
+                        )
+                    );
+                    
+                    mqttResponse.setPayload(jsonResponse.getBytes());
+                    String publishTopic = TATUWrapper.buildTATUResponseTopic(device.getId() + "/score");
+                    this.device.publish(publishTopic, mqttResponse);
+    
+                } else {
+                    sensor = (FoTSensor) device.getSensorBySensorId(tatuMessage.getTarget())
+                            .orElse(NullFoTSensor.getInstance());
+                    String jsonResponse = TATUWrapper.buildGetMessageResponse(device.getId(),
+                            sensor.getId(),
+                            sensor.getCurrentValue());
 
-                mqttResponse.setPayload(jsonResponse.getBytes());
-                String publishTopic = TATUWrapper.buildTATUResponseTopic(device.getId());
-                this.device.publish(publishTopic, mqttResponse);
+                    mqttResponse.setPayload(jsonResponse.getBytes());
+                    String publishTopic = TATUWrapper.buildTATUResponseTopic(device.getId());
+                    this.device.publish(publishTopic, mqttResponse);
+                }
                 break;
             case SET:
                 if (tatuMessage.getTarget().equalsIgnoreCase("brokerMqtt") && !this.device.isUpdating()) {
