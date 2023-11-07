@@ -26,6 +26,11 @@ public class FoTDevice extends Device {
     private MqttCallback callback;
     private JSONObject jsonInvitation;
 
+    public FoTDevice(String name, List<Sensor> sensors) {
+        super(name, new Random().nextDouble(), new Random().nextDouble(), sensors);
+        this.updating = false;
+    }
+
     public FoTDevice(String name, List<Sensor> sensors, JSONObject jsonInvitation) {
         super(name, new Random().nextDouble(), new Random().nextDouble(), sensors);
         this.updating = false;

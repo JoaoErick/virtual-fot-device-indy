@@ -64,10 +64,10 @@ public class Main {
                                 .orElse("10000");
 
                         String agentIp = CLI.getAgentIp(args)
-                                        .orElse("10000");
+                                        .orElse("");
 
                         String agentPort = CLI.getAgentPort(args)
-                                        .orElse("10000");
+                                        .orElse("");
 
                         BrokerSettings brokerSettings = BrokerSettingsBuilder
                                         .builder()
@@ -101,14 +101,21 @@ public class Main {
                                 .map(Sensor.class::cast)
                                 .collect(toList());
 
-                        ariesController = new AriesController(agentIp, agentPort);
+                        if (!agentIp.isEmpty() && !agentPort.isEmpty()) {
+                                ariesController = new AriesController(agentIp, agentPort);
+                                
+                                JSONObject jsonInvitation = createInvitation(ariesController, deviceId);
 
-                        JSONObject jsonInvitation = createInvitation(ariesController, deviceId);
+                                FoTDevice device = new FoTDevice(deviceId, sensors, jsonInvitation);
 
-                        FoTDevice device = new FoTDevice(deviceId, sensors, jsonInvitation);
-
-                        BrokerUpdateCallback callback = new BrokerUpdateCallback(device);
-                        callback.startUpdateBroker(brokerSettings, Long.parseLong(timeout), true, jsonInvitation);
+                                BrokerUpdateCallback callback = new BrokerUpdateCallback(device);
+                                callback.startUpdateBroker(brokerSettings, Long.parseLong(timeout), true, jsonInvitation);
+                        } else {
+                                FoTDevice device = new FoTDevice(deviceId, sensors);
+                                
+                                BrokerUpdateCallback callback = new BrokerUpdateCallback(device);
+                                callback.startUpdateBroker(brokerSettings, Long.parseLong(timeout), true);
+                        }
 
                 } catch (IOException ex) {
                         System.err.println("Sorry, unable to find sensors.json or not create pesistence file.");

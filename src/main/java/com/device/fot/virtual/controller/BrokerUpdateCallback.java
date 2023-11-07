@@ -66,6 +66,39 @@ public class BrokerUpdateCallback implements MqttCallback, Runnable {
         }
     }
 
+    public void startUpdateBroker(BrokerSettings brokerSettings, double timeout, boolean retryConnect) {
+        if (this.device.isUpdating()) {
+            System.out.println("Device já está atualizando.");
+            return;
+        }
+
+        this.device.setIsUpdating(true);
+        MqttConnectOptions newOptions = brokerSettings.getConnectionOptions();
+        String connectionTopic = ExtendedTATUWrapper.getConnectionTopic();
+        String message = ExtendedTATUWrapper.buildConnectMessage(device, ip, timeout);
+        this.timeoutCounter = new Thread(this);
+        this.timeoutCounter.setName("BROKER/UPDATE/TIMEOUT");
+
+        try {
+            MqttClient newClient = brokerSettings.getClient();
+
+            newClient.setCallback(this);
+
+            this.tryConnect(newClient, newOptions, retryConnect);
+
+            newClient.subscribe(ExtendedTATUWrapper.getConnectionTopicResponse());
+            newClient.publish(connectionTopic, new MqttMessage(message.getBytes()));
+
+            this.brokerSettings = brokerSettings;
+
+            this.timeoutCounter.start();
+
+        } catch (MqttException ex) {
+            brokerSettings.disconnectClient();
+            device.setIsUpdating(false);
+        }
+    }
+
     @Override
     public void connectionLost(Throwable cause) {
 
