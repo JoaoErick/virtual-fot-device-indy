@@ -13,7 +13,7 @@ public class CalculateScore {
             sumValues += calculateSensorScore(sensor.getType(), sensor.getLastValue());
         }
 
-        return (sumValues / sensors.size());
+        return sumValues;
     }
 
     private static synchronized int calculateSensorScore(String sensorType, int value) {
