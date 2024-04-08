@@ -1,4 +1,4 @@
-# Virtual-fot-device
+# Virtual-fot-device-indy
 Um dispositivo virtual capaz de simular sensores e de se comunicar através de um 
 broker MQTT utilizando algumas das primitivas do protocolo TATU e ExtendedTATU.
 
@@ -26,6 +26,8 @@ passando os seguintes paramentros de inicialização:
 |**-us**| Username  | Define o usuário da conexão | karaf |
 |**-pw**| Password     | Define a senha de conexão do broker | karaf |
 |**-ps**| Persistência | Define se o dispositivo deve persistir em arquivo as amostras coletadas | true |
+|**-ai**| Aries Agent IP | Define o IP do agente Aries | null |
+|**-ap**| Aries Agent IP | Define a porta do agente Aries | null |
 <!--|**-to**| Timeout | Define o tempo inicial de espera para confirmação do broker | 10.000 ms|-->
 
   > Atenção: Não pode haver 2 dispositivos com o mesmo device ID em um mesmo broker.
@@ -56,6 +58,8 @@ responde no ``dev/DEVICE_ID/RES``.
 # Exemplos de request
 ### GET
     GET VALUE sensorName
+
+    GET SCORE device
     
 ### FLOW
     FLOW VALUE sensorName {"publish": int, "collect":int}
