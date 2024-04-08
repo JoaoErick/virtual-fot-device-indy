@@ -10,45 +10,39 @@ import java.util.Optional;
  */
 public class CLI {
 
-    public static Optional<String> getDeviceId(String... args) {
-        return getArgInList("-di", args);
+    public static Optional<String> getDeviceId() {
+        return Optional.ofNullable(System.getenv("DEVICE_ID"));
     }
 
-    public static Optional<String> getBrokerIp(String... args) {
-        return getArgInList("-bi", args);
-    }
-    
-    public static Optional<String> getPort(String... args){
-        return getArgInList("-pt", args);
-    }
-    
-    public static Optional<String> getPassword(String... args){
-        return getArgInList("-pw", args);
-    }
-    
-    public static Optional<String> getUsername(String... args){
-        return getArgInList("-us", args);
-    }
-    
-    public static Optional<String> getTimeout(String... args){
-        return getArgInList("-to", args);
-    }
-    
-    public static Optional<String> getAgentIp(String... args){
-        return getArgInList("-ai", args);
+    public static Optional<String> getBrokerIp() {
+        return Optional.ofNullable(System.getenv("BROKER_IP"));
     }
 
-    public static Optional<String> getAgentPort(String... args){
-        return getArgInList("-ap", args);
-    }
-    
-    public static boolean hasParam(String arg, String... args){
-        return Arrays.asList(args).indexOf(arg) != -1;
+    public static Optional<String> getPort() {
+        return Optional.ofNullable(System.getenv("PORT"));
     }
 
-    private static Optional<String> getArgInList(String arg, String... args) {
-        List<String> largs = Arrays.asList(args);
-        int index = largs.indexOf(arg);
-        return (index == -1) ? Optional.empty() : Optional.of(largs.get(index + 1));
+    public static Optional<String> getPassword() {
+        return Optional.ofNullable(System.getenv("PASSWORD"));
+    }
+
+    public static Optional<String> getUsername() {
+        return Optional.ofNullable(System.getenv("USERNAME"));
+    }
+
+    public static Optional<String> getTimeout() {
+        return Optional.ofNullable(System.getenv("TIMEOUT"));
+    }
+
+    public static Optional<String> getAgentIp() {
+        return Optional.ofNullable(System.getenv("AGENT_IP"));
+    }
+
+    public static Optional<String> getAgentPort() {
+        return Optional.ofNullable(System.getenv("AGENT_PORT"));
+    }
+
+    public static boolean hasParam(String arg) {
+        return System.getenv(arg) != null;
     }
 }

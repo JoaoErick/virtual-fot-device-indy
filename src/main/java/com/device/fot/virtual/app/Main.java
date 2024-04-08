@@ -45,28 +45,28 @@ public class Main {
                         }
                         Properties props = new Properties();
                         props.load(input);
-                        String deviceId = CLI.getDeviceId(args)
+                        String deviceId = CLI.getDeviceId()
                                         .orElse(UUID.randomUUID().toString());
 
-                        String brokerIp = CLI.getBrokerIp(args)
+                        String brokerIp = CLI.getBrokerIp()
                                 .orElse(props.getProperty("brokerIp"));
 
-                        String port = CLI.getPort(args)
+                        String port = CLI.getPort()
                                 .orElse(props.getProperty("port"));
 
-                        String password = CLI.getPassword(args)
+                        String password = CLI.getPassword()
                                 .orElse(props.getProperty("password"));
 
-                        String user = CLI.getUsername(args)
+                        String user = CLI.getUsername()
                                 .orElse(props.getProperty("username"));
 
-                        String timeout = CLI.getTimeout(args)
+                        String timeout = CLI.getTimeout()
                                 .orElse("10000");
 
-                        String agentIp = CLI.getAgentIp(args)
+                        String agentIp = CLI.getAgentIp()
                                         .orElse("");
 
-                        String agentPort = CLI.getAgentPort(args)
+                        String agentPort = CLI.getAgentPort()
                                         .orElse("");
 
                         BrokerSettings brokerSettings = BrokerSettingsBuilder
@@ -78,19 +78,19 @@ public class Main {
                                         .deviceId(deviceId)
                                         .build();
 
-                        if (CLI.hasParam("-ps", args)) {
+                        if (CLI.hasParam("-ps")) {
                                 MessageLogController.getInstance().createAndUpdateFileName(deviceId + "_messages_log.csv");
                                 MessageLogController.getInstance().start();
                                 MessageLogController.getInstance().setCanSaveData(true);
                         }
                         
-                        if(CLI.hasParam("-ll", args)){
+                        if(CLI.hasParam("-ll")){
                                 LatencyLogController.getInstance().createAndUpdateFileName(deviceId + "_latency_log.csv");
                                 LatencyLogController.getInstance().start();
                                 LatencyLogController.getInstance().setCanSaveData(true);
                         }
 
-                        if(CLI.hasParam("-sl", args)){
+                        if(CLI.hasParam("-sl")){
                                 ScoreLogController.getInstance().createAndUpdateFileName(deviceId + "_score_log.csv");
                                 ScoreLogController.getInstance().start();
                                 ScoreLogController.getInstance().setCanSaveData(true);
